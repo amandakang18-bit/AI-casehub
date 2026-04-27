@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI案例提报系统 · 演示版</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: #F5F4EE;
+    color: #1A1A1A;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+  
+  .demo-banner {
+    max-width: 720px;
+    margin: 0 auto 16px;
+    padding: 10px 16px;
+    background: #FAEEDA;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #8B5A1A;
+    text-align: center;
+  }
+  
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E8E6DD;
+    padding: 32px 36px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #E8E6DD;
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #6B6B6B;
+  }
+  
+  .channel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .channel-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E6DD;
+    border-radius: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .channel-card:hover {
+    border-color: #4A7BBA;
+    background: #FAFAF7;
+  }
+  .channel-card .title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .channel-card .desc {
+    font-size: 12px;
+    color: #6B6B6B;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .channel-card .meta {
+    font-size: 11px;
+    color: #9A9A9A;
+  }
+  .channel-tip {
+    font-size: 12px;
+    color: #9A9A9A;
+    line-height: 1.6;
+    margin-top: 8px;
+  }
+  
+  .back-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .back-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border: 1px solid #E8E6DD;
+    border-radius: 6px;
+    background: #FFFFFF;
+    cursor: pointer;
+    color: #4A4A4A;
+  }
+  .back-btn:hover { background: #F5F4EE; }
+  .channel-label {
+    font-size: 13px;
+    color: #6B6B6B;
+  }
+  
+  .form-section { margin-bottom: 22px; }
+  .label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .sublabel {
+    font-size: 12px;
+    color: #6B6B6B;
+    margin-bottom: 10px;
+  }
+  .required { color: #D63838; }
+  
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #E8E6DD;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #FFFFFF;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: #4A7BBA;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 64px;
+  }
+  
+  .pick-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pick-card {
+    border: 1px solid #E8E6DD;
+    border-radius: 8px;
+    padding: 11px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #FFFFFF;
+  }
+  .pick-card:hover {
+    border-color: #4A7BBA;
+    background: #FAFAF7;
+  }
+  .pick-card.active {
+    border: 2px solid #4A7BBA;
+    background: #EAF1FB;
+    padding: 10px 15px;
+  }
+  .pick-card .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pick-card .name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+  .pick-card .hint {
+    font-size: 11px;
+    color: #6B6B6B;
+    line-height: 1.5;
+  }
+  .pick-card .score-hint {
+    font-size: 11px;
+    color: #9A9A9A;
+    white-space: nowrap;
+    margin-left: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .score-card {
+    background: #F5F4EE;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 22px;
+  }
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .score-row .row-label {
+    font-size: 13px;
+    color: #6B6B6B;
+  }
+  .score-value {
+    font-size: 28px;
+    font-weight: 500;
+    color: #4A7BBA;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-divider {
+    border-top: 1px solid #E8E6DD;
+    margin: 10px 0;
+  }
+  .tier-value {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .score-note {
+    font-size: 11px;
+    color: #9A9A9A;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+  
+  .upload-area {
+    border: 1px dashed #C4C2B8;
+    border-radius: 8px;
+    padding: 22px 16px;
+    text-align: center;
+    cursor: pointer;
+    background: #F5F4EE;
+    transition: all 0.15s;
+  }
+  .upload-area:hover {
+    border-color: #4A7BBA;
+    background: #EAF1FB;
+  }
+  .upload-area .main-text {
+    font-size: 13px;
+    color: #4A4A4A;
+    margin-bottom: 4px;
+  }
+  .upload-area .sub-text {
+    font-size: 11px;
+    color: #9A9A9A;
+  }
+  
+  .tip-bar {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .tip-bar.warning {
+    background: #FAEEDA;
+    color: #8B5A1A;
+  }
+  
+  .stage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stage-card {
+    border: 1px solid #E8E6DD;
+    border-radius: 8px;
+    padding: 11px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #FFFFFF;
+  }
+  .stage-card:hover {
+    border-color: #C18A2C;
+    background: #FAFAF7;
+  }
+  .stage-card.active {
+    border: 2px solid #C18A2C;
+    background: #FAEEDA;
+    padding: 10px 13px;
+  }
+  .stage-card .name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .stage-card .hint {
+    font-size: 11px;
+    color: #6B6B6B;
+  }
+  
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #E8E6DD;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #FFFFFF;
+  }
+  .checkbox-item:hover { background: #FAFAF7; }
+  .checkbox-item input { cursor: pointer; }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #E8E6DD;
+  }
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-secondary {
+    background: #FFFFFF;
+    color: #4A4A4A;
+    border-color: #E8E6DD;
+  }
+  .btn-secondary:hover { background: #F5F4EE; }
+  .btn-primary {
+    background: #4A7BBA;
+    color: #FFFFFF;
+  }
+  .btn-primary:hover { background: #3A6BAA; }
+  .btn-warning {
+    background: #C18A2C;
+    color: #FFFFFF;
+  }
+  .btn-warning:hover { background: #A77522; }
+  
+  .hidden { display: none !important; }
+  
+  .success-page {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #E8F5E9;
+    color: #1B7A3E;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 18px;
+  }
+  .success-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .success-desc {
+    font-size: 13px;
+    color: #6B6B6B;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .result-box {
+    background: #F5F4EE;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 0 auto 24px;
+    max-width: 360px;
+    text-align: left;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+  .result-row .key { color: #6B6B6B; }
+  .result-row .val { font-weight: 500; }
+  .result-divider {
+    border-top: 1px solid #E8E6DD;
+    margin: 8px 0;
+  }
+  .next-steps {
+    background: #EAF1FB;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 0 auto 20px;
+    max-width: 440px;
+    text-align: left;
+    font-size: 12px;
+    color: #2563A6;
+    line-height: 1.7;
+  }
+  .next-steps strong {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  这是一个交互演示原型 · 用于沟通需求,无后端逻辑
+</div>
+
+<div class="container">
+
+<div class="header">
+  <div>
+    <h1>提报AI案例</h1>
+    <p>回答两个问题:你做了什么 + 别人怎么看</p>
+  </div>
+</div>
+
+<div id="page-channel">
+  <p style="font-size: 13px; color: #6B6B6B; margin-bottom: 14px;">先选择提报通道</p>
+  <div class="channel-grid">
+    <div class="channel-card" onclick="goChannel('eff')">
+      <div class="title">效率通道</div>
+      <div class="desc">把现有业务流程AI化,提升效率或质量</div>
+      <div class="meta">查表评分 · 计入AI指挥力 · 上限40分</div>
+    </div>
+    <div class="channel-card" onclick="goChannel('cre')">
+      <div class="title">创造通道</div>
+      <div class="desc">让公司具备以前做不了的新能力</div>
+      <div class="meta">标签制 · 直通S级评审 · 不计入打分</div>
+    </div>
+  </div>
+  <div class="channel-tip">
+    判断原则:把已有流程做高效 → 效率通道;让公司做以前做不了的事 → 创造通道
+  </div>
+</div>
+
+<div id="page-eff" class="hidden">
+
+<div class="back-bar">
+  <button class="back-btn" onclick="resetForm()">← 返回</button>
+  <span class="channel-label">效率通道 · 查表评分</span>
+</div>
+
+<div class="form-section">
+  <label class="label">案例名称 <span class="required">*</span></label>
+  <input type="text" id="case-name" placeholder="如:发票自动审核智能体" />
+</div>
+
+<div class="form-section">
+  <label class="label">第一步:深度等级 <span class="required">*</span></label>
+  <p class="sublabel">你做了什么类型的AI实践?右侧显示该深度对应的Q1/Q2/Q3三档分值</p>
+  <div class="pick-list">
+    <div class="pick-card" data-d="D1" onclick="pickDepth('D1')">
+      <div class="row">
+        <div>
+          <div class="name">D1 Prompt模板</div>
+          <div class="hint">可复用的高质量提示词</div>
+        </div>
+        <div class="score-hint">10 / 12 / 15</div>
+      </div>
+    </div>
+    <div class="pick-card" data-d="D2" onclick="pickDepth('D2')">
+      <div class="row">
+        <div>
+          <div class="name">D2 人机协同分工</div>
+          <div class="hint">重构AI与人的分工模式</div>
+        </div>
+        <div class="score-hint">18 / 22 / 25</div>
+      </div>
+    </div>
+    <div class="pick-card" data-d="D3" onclick="pickDepth('D3')">
+      <div class="row">
+        <div>
+          <div class="name">D3 Agent工作流</div>
+          <div class="hint">端到端自动化,无需持续介入</div>
+        </div>
+        <div class="score-hint">25 / 32 / 35</div>
+      </div>
+    </div>
+    <div class="pick-card" data-d="D4" onclick="pickDepth('D4')">
+      <div class="row">
+        <div>
+          <div class="name">D4 复杂Agent</div>
+          <div class="hint">多Agent协同 / 动态决策 / 基本全自动</div>
+        </div>
+        <div class="score-hint">30 / 35 / 40</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-section">
+  <label class="label">第二步:质量等级 <span class="required">*</span></label>
+  <p class="sublabel">这个案例目前被认可到什么程度?</p>
+  <div class="pick-list">
+    <div class="pick-card" data-q="Q1" onclick="pickQuality('Q1')">
+      <div class="name">Q1 自己用,能跑通</div>
+      <div class="hint">提交运行截图后即时生效,无需他人确认</div>
+    </div>
+    <div class="pick-card" data-q="Q2" onclick="pickQuality('Q2')">
+      <div class="name">Q2 上级/用户/合作方认可</div>
+      <div class="hint">基本能用、有价值,可纳入日常工作。需指定业务方在系统点击确认</div>
+    </div>
+    <div class="pick-card" data-q="Q3" onclick="pickQuality('Q3')">
+      <div class="name">Q3 高度认可,纳入日常</div>
+      <div class="hint">完全成型,已纳入日常工作流程或内容。需业务方填写说明并经评审委员会复核</div>
+    </div>
+  </div>
+</div>
+
+<div class="score-card">
+  <div class="score-row">
+    <div class="row-label">本案例得分</div>
+    <div class="score-value" id="score">--</div>
+  </div>
+  <div class="score-divider"></div>
+  <div class="score-row">
+    <div class="row-label">对应档位</div>
+    <div class="tier-value" id="tier" style="color: #9A9A9A;">请先选择深度和质量</div>
+  </div>
+  <div class="score-note">
+    AI指挥力得分 = 你最高分案例的分数,封顶40分。本次提报不会与已有案例累计。
+  </div>
+</div>
+
+<div id="block-q1" class="form-section hidden">
+  <label class="label">运行截图 <span class="required">*</span></label>
+  <div class="upload-area">
+    <div class="main-text">点击上传或拖入截图</div>
+    <div class="sub-text">证明案例已运行成功 · Q1即时生效</div>
+  </div>
+</div>
+
+<div id="block-q23" class="form-section hidden">
+  <label class="label">业务方/上级确认人 <span class="required">*</span></label>
+  <input type="text" placeholder="工号或姓名" />
+  <p class="sublabel" id="confirm-hint" style="margin-top: 6px; margin-bottom: 0;"></p>
+</div>
+
+<div id="block-q3-extra" class="form-section hidden">
+  <label class="label">业务方说明文字</label>
+  <textarea placeholder="提示业务方填写:为什么这个案例已纳入日常工作?(由确认人在系统中填写)" style="background: #F5F4EE;"></textarea>
+</div>
+
+<div class="form-section">
+  <label class="label">解决的业务问题 <span class="required">*</span></label>
+  <textarea placeholder="AI替代或改善了哪个工作环节?原来怎么做?现在怎么做?"></textarea>
+</div>
+
+<div class="form-section">
+  <label class="label">核心资产链接 <span class="required">*</span></label>
+  <input type="text" placeholder="Prompt文档 / 工作流截图 / Agent地址(必须可访问)" />
+</div>
+
+<div class="actions">
+  <button class="btn btn-secondary">存为草稿</button>
+  <button class="btn btn-primary" onclick="submitEff()">提交</button>
+</div>
+
+</div>
+
+<div id="page-cre" class="hidden">
+
+<div class="back-bar">
+  <button class="back-btn" onclick="resetForm()">← 返回</button>
+  <span class="channel-label">创造通道 · 标签制评审</span>
+</div>
+
+<div class="tip-bar warning">
+  你做的是让公司能做"以前做不了的新事情",这条通道直通S级AI创客评审,不计入打分体系
+</div>
+
+<div class="form-section">
+  <label class="label">作品名称 <span class="required">*</span></label>
+  <input type="text" placeholder="给你的AI原生创造起一个名字" />
+</div>
+
+<div class="form-section">
+  <label class="label">当前阶段(自评) <span class="required">*</span></label>
+  <p class="sublabel">评审委员会会根据实际验证情况确定最终标签</p>
+  <div class="stage-grid">
+    <div class="stage-card" onclick="pickStage(this)">
+      <div class="name">概念 Concept</div>
+      <div class="hint">有想法、有Demo,尚未验证</div>
+    </div>
+    <div class="stage-card" onclick="pickStage(this)">
+      <div class="name">试点 Pilot</div>
+      <div class="hint">小范围落地,有早期数据</div>
+    </div>
+    <div class="stage-card" onclick="pickStage(this)">
+      <div class="name">规模化 Scale</div>
+      <div class="hint">已产生持续业务价值</div>
+    </div>
+    <div class="stage-card" onclick="pickStage(this)">
+      <div class="name">爆款 Breakthrough</div>
+      <div class="hint">可衡量的新业务增量</div>
+    </div>
+  </div>
+</div>
+
+<div class="form-section">
+  <label class="label">创造了什么新能力 <span class="required">*</span></label>
+  <textarea placeholder="说明这个作品让公司具备了什么以前做不了的事,与现有解决方案的本质区别" style="min-height: 80px;"></textarea>
+</div>
+
+<div class="form-section">
+  <label class="label">作品演示</label>
+  <input type="text" placeholder="Demo链接 / 视频 / 截图" />
+</div>
+
+<div class="form-section">
+  <label class="label">商业潜力假设</label>
+  <textarea placeholder="如果这个作品规模化,可能带来什么业务结果?目标用户是谁?"></textarea>
+</div>
+
+<div class="form-section">
+  <label class="label">期望获得的支持</label>
+  <div class="checkbox-grid">
+    <label class="checkbox-item"><input type="checkbox" /><span>导师配对</span></label>
+    <label class="checkbox-item"><input type="checkbox" /><span>项目预算</span></label>
+    <label class="checkbox-item"><input type="checkbox" /><span>跨部门资源</span></label>
+    <label class="checkbox-item"><input type="checkbox" /><span>专属探索时间</span></label>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn btn-secondary">存为草稿</button>
+  <button class="btn btn-warning" onclick="submitCre()">提交评审</button>
+</div>
+
+</div>
+
+<div id="page-success-eff" class="hidden">
+  <div class="success-page">
+    <div class="success-icon">✓</div>
+    <div class="success-title">提交成功</div>
+    <div class="success-desc">你的案例已进入审核流程</div>
+    
+    <div class="result-box">
+      <div class="result-row">
+        <span class="key">案例</span>
+        <span class="val" id="result-name">--</span>
+      </div>
+      <div class="result-row">
+        <span class="key">深度等级</span>
+        <span class="val" id="result-depth">--</span>
+      </div>
+      <div class="result-row">
+        <span class="key">质量等级</span>
+        <span class="val" id="result-quality">--</span>
+      </div>
+      <div class="result-divider"></div>
+      <div class="result-row">
+        <span class="key">本案例得分</span>
+        <span class="val" id="result-score" style="color: #4A7BBA; font-size: 18px;">--</span>
+      </div>
+      <div class="result-row">
+        <span class="key">对应档位</span>
+        <span class="val" id="result-tier">--</span>
+      </div>
+    </div>
+    
+    <div class="next-steps">
+      <strong>接下来会发生什么</strong>
+      <div id="next-steps-content">--</div>
+    </div>
+    
+    <div class="actions" style="justify-content: center; border-top: none; margin-top: 0;">
+      <button class="btn btn-secondary" onclick="resetForm()">返回</button>
+      <button class="btn btn-primary" onclick="goChannel('eff')">继续提报</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-success-cre" class="hidden">
+  <div class="success-page">
+    <div class="success-icon" style="background: #FAEEDA; color: #8B5A1A;">✓</div>
+    <div class="success-title">提交成功</div>
+    <div class="success-desc">你的作品已进入创造通道评审队列</div>
+    
+    <div class="next-steps" style="background: #FAEEDA; color: #8B5A1A;">
+      <strong>接下来会发生什么</strong>
+      AI案例评审委员会将在7-14个工作日内对你的作品进行初评,确定最终标签等级。<br>
+      若获得"试点"及以上标签,你将自动进入S级AI创客候选池,并配套相应支持资源。
+    </div>
+    
+    <div class="actions" style="justify-content: center; border-top: none; margin-top: 0;">
+      <button class="btn btn-secondary" onclick="resetForm()">返回</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let curD = null, curQ = null;
+
+const scoreTable = {
+  D1: { Q1: 10, Q2: 12, Q3: 15 },
+  D2: { Q1: 18, Q2: 22, Q3: 25 },
+  D3: { Q1: 25, Q2: 32, Q3: 35 },
+  D4: { Q1: 30, Q2: 35, Q3: 40 }
+};
+
+const depthNames = {
+  D1: 'D1 Prompt模板',
+  D2: 'D2 人机协同分工',
+  D3: 'D3 Agent工作流',
+  D4: 'D4 复杂Agent'
+};
+
+const qualityNames = {
+  Q1: 'Q1 自用',
+  Q2: 'Q2 认可',
+  Q3: 'Q3 高度认可'
+};
+
+function tierOf(s) {
+  if (s >= 35) return { l: 'A级 AI架构师', c: '#1B7A3E' };
+  if (s >= 28) return { l: 'B级 高潜人才', c: '#1B7A3E' };
+  if (s >= 22) return { l: 'C级 AI熟练工', c: '#2563A6' };
+  if (s >= 15) return { l: 'D级 AI起步者(达标)', c: '#2563A6' };
+  return { l: 'E级 AI待激活', c: '#9A9A9A' };
+}
+
+function showPage(id) {
+  ['page-channel', 'page-eff', 'page-cre', 'page-success-eff', 'page-success-cre'].forEach(p => {
+    document.getElementById(p).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function goChannel(c) {
+  if (c === 'eff') {
+    showPage('page-eff');
+  } else {
+    showPage('page-cre');
+  }
+}
+
+function resetForm() {
+  curD = null;
+  curQ = null;
+  document.querySelectorAll('.pick-card').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.stage-card').forEach(el => el.classList.remove('active'));
+  document.getElementById('block-q1').classList.add('hidden');
+  document.getElementById('block-q23').classList.add('hidden');
+  document.getElementById('block-q3-extra').classList.add('hidden');
+  document.getElementById('score').textContent = '--';
+  document.getElementById('tier').textContent = '请先选择深度和质量';
+  document.getElementById('tier').style.color = '#9A9A9A';
+  const nameInput = document.getElementById('case-name');
+  if (nameInput) nameInput.value = '';
+  showPage('page-channel');
+}
+
+function pickDepth(d) {
+  curD = d;
+  document.querySelectorAll('[data-d]').forEach(el => {
+    if (el.dataset.d === d) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+  refresh();
+}
+
+function pickQuality(q) {
+  curQ = q;
+  document.querySelectorAll('[data-q]').forEach(el => {
+    if (el.dataset.q === q) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+  
+  const blockQ1 = document.getElementById('block-q1');
+  const blockQ23 = document.getElementById('block-q23');
+  const blockQ3 = document.getElementById('block-q3-extra');
+  const hint = document.getElementById('confirm-hint');
+  
+  blockQ1.classList.add('hidden');
+  blockQ23.classList.add('hidden');
+  blockQ3.classList.add('hidden');
+  
+  if (q === 'Q1') {
+    blockQ1.classList.remove('hidden');
+  } else if (q === 'Q2') {
+    blockQ23.classList.remove('hidden');
+    hint.textContent = '提交后业务方将收到通知,在系统点击"使用过且有价值"按钮即生效';
+  } else if (q === 'Q3') {
+    blockQ23.classList.remove('hidden');
+    blockQ3.classList.remove('hidden');
+    hint.textContent = 'Q3需业务方填写说明,经评审委员会7个工作日内复核生效';
+  }
+  
+  refresh();
+}
+
+function pickStage(el) {
+  document.querySelectorAll('.stage-card').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function refresh() {
+  const sc = document.getElementById('score');
+  const ti = document.getElementById('tier');
+  if (!curD || !curQ) {
+    sc.textContent = '--';
+    ti.textContent = '请先选择深度和质量';
+    ti.style.color = '#9A9A9A';
+    return;
+  }
+  const v = scoreTable[curD][curQ];
+  sc.textContent = v + ' 分';
+  const t = tierOf(v);
+  ti.textContent = t.l;
+  ti.style.color = t.c;
+}
+
+function submitEff() {
+  if (!curD || !curQ) {
+    alert('请先选择深度和质量等级');
+    return;
+  }
+  const name = document.getElementById('case-name').value || '(未填写名称)';
+  const score = scoreTable[curD][curQ];
+  const tier = tierOf(score);
+  
+  document.getElementById('result-name').textContent = name;
+  document.getElementById('result-depth').textContent = depthNames[curD];
+  document.getElementById('result-quality').textContent = qualityNames[curQ];
+  document.getElementById('result-score').textContent = score + ' 分';
+  document.getElementById('result-tier').textContent = tier.l;
+  document.getElementById('result-tier').style.color = tier.c;
+  
+  let nextText = '';
+  if (curQ === 'Q1') {
+    nextText = '案例已即时生效,分数已计入你的AI指挥力得分。<br>未来如获得业务方认可,可随时申请升级到Q2或Q3,分数将自动更新。';
+  } else if (curQ === 'Q2') {
+    nextText = '系统已通知你指定的业务方进行确认。<br>业务方在系统点击"使用过且有价值"后,本案例的Q2分数即生效。<br>评审委员会将同步复核深度等级,如有调整会通知你。';
+  } else if (curQ === 'Q3') {
+    nextText = '系统已通知业务方填写认可说明。<br>评审委员会将在7个工作日内复核Q3资格。<br>复核通过后,本案例的Q3分数生效;若调整为Q2,你也可以申请重新评审。';
+  }
+  document.getElementById('next-steps-content').innerHTML = nextText;
+  
+  showPage('page-success-eff');
+}
+
+function submitCre() {
+  showPage('page-success-cre');
+}
+</script>
+
+</body>
+</html>
